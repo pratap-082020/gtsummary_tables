@@ -28,41 +28,37 @@ adsl<-tribble(
 )
 
 
-
-gt_tbl <- adsl %>%
-  filter(fasfl == "Y") %>%
-  select(asex, arace, trt01p) %>%
+tbl <- adsl %>%
+  filter(fasfl == "Y") %>%   # Full Analysis Set
+  select(trt01p, asex, arace) %>% mutate(
+    asex = if_else(asex=="", "Missing", asex),
+    arace = if_else(arace=="", "Missing", arace)
+  ) %>%
   tbl_summary(
     by = trt01p,
     missing = "ifany",
-    type = list(
-      arace ~ "continuous2",
-      asex ~ "categorical"
-    ),
-    label = list(
-      asex ~ "Sex, n (%)",
-      arace ~ "Race"
-    ),
+    percent = "column",
     statistic = list(
-      all_categorical() ~ "{n} ({p}%)",
-      arace ~ c(
-        "{N_nonmiss} ({N_miss})",
-        "{mean} ({sd})",
-        "{median}",
-        "{p25}, {p75}",
-        "{min}, {max}"
-      )
-    ),
-    digits = list(
-      all_categorical() ~ c(0, 1),
-      all_continuous2() ~ c(0, 1, 1, 1, 0)
+      all_categorical() ~ "{n} ({p}%)"   # show both frequency and percent
     )
+  ) %>% add_overall(last = T, col_label="**Total<br>(N = {n})**") %>%
+  modify_table_body(
+    ~.x %>% mutate(
+      label = if_else(label == "asex", "Sex, n (%)", label),
+      label = if_else(label == "arace", "Race, n (%)", label)
+    )
+  ) %>% modify_footnote(all_stat_cols() ~ NA) %>%
+  modify_header(
+    label ~ "**Statistic**",
+    stat_1 ~ "**Dose level 1<br>(N = {n})**",
+    stat_2 ~ "**Dose level 3<br>(N = {n})**"
+  ) %>%
+  modify_caption(
+    "**Summary for categorical variables<br>Full Analysis Set**"
   )
   
-gt_tbl
+  
+tbl
 
-gt_tbl <- as_gt(gt_tbl)
-gtsave(
-  gt_tbl,
-  "output/tbl03.pdf"
-)
+
+
