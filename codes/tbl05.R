@@ -88,18 +88,19 @@ tbl02
 tbl01
 tbl02
 
-complete_tbl <- tbl_stack(list(tbl02, tbl01)) %>% 
-  as_gt() %>% gt::cols_move_to_end(columns = "stat_0") %>%  
-  gt::tab_header(
-    title = md("Demographic and Baseline Characteristics"),
-    subtitle = md("Full Analysis Set")
+complete_tbl <- tbl_stack(list(tbl02, tbl01)) %>%
+  modify_header(
+    label ~ "**Characteristic**"
+  ) %>%
+  modify_caption(
+    "**Demographic and Baseline Characteristics**<br>Full Analysis Set"
   )
 
-
-
 complete_tbl
+
+gt_tbl <- as_gt(complete_tbl)
 gtsave(
-  complete_tbl,
+  gt_tbl,
   "output/tbl05.pdf"
 )
 
